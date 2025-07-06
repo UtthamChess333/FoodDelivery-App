@@ -1,7 +1,8 @@
 import RestaurantCard from "./RestaurantCard";
-// import resList from "../utils/mockData";
+import useOnlineStatus from "../utils/useOnlineStatus";
 import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer";
+import { Link } from "react-router-dom";
 
 const Body = () => {
   const [listOfRestauarants, setListOfRestaurants] = useState([]);
@@ -23,6 +24,18 @@ const Body = () => {
     console.log("Json: ", json);
   };
 
+  const onlineStatus = useOnlineStatus();
+
+  if (onlineStatus === false) {
+    return (
+      <div>
+        <h1>
+          Its looks like you are offline..Please Check your Internet Connection
+        </h1>
+      </div>
+    );
+  }
+
   if (listOfRestauarants.length === 0) {
     return <Shimmer />;
   }
@@ -42,13 +55,15 @@ const Body = () => {
           <button
             onClick={() => {
               console.log(searchText);
-              const filteredRestaurants = listOfRestauarants.filter(
-                (res) => res?.card?.card?.info?.name?.toLowerCase().includes(searchText.toLowerCase())
+              const filteredRestaurants = listOfRestauarants.filter((res) =>
+                res?.card?.card?.info?.name
+                  ?.toLowerCase()
+                  .includes(searchText.toLowerCase())
               );
               setFilteredRestaurants(filteredRestaurants);
             }}
           >
-            search
+            Search
           </button>
         </div>
         <button
@@ -58,23 +73,26 @@ const Body = () => {
             const filteredList = listOfRestauarants.filter(
               (res) => res.card?.card?.info?.avgRating > 4.0
             );
-            setListOfRestaurants(filteredList);
+            setFilteredRestaurants(filteredList);
           }}
         >
           Top Rated Restaurants
         </button>
       </div>
       <div className="res-container">
-        {filteredRestaurants.map((res) => (
-          <RestaurantCard
-            key={res?.card?.card?.info?.id}
-            resData={res?.card?.card?.info}
-          />
-        ))}
+        {filteredRestaurants.map((res) => {
+          return (
+            <Link
+              key={res?.card?.card?.info?.id}
+              to={"restaurants/" + res?.card?.card?.info?.id}
+            >
+              <RestaurantCard resData={res?.card?.card?.info} />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default Body;
-  
